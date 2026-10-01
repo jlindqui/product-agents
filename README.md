@@ -156,6 +156,21 @@ Replace the critic's generic roles section with your product's real roles, and
 add your own past decisions as examples. A critic that knows "we chose to ask
 more here, and it was right" rules better than one that doesn't.
 
+### Make sure the next step reaches you
+
+A subagent reports to the main Claude session, not directly to you, and that
+session can summarise away the critic's `NEXT` line. To make the hand-off
+reliable, add this to your project's `CLAUDE.md`:
+
+```markdown
+## Product review
+- After a jtbd-critic review, always show me its NEXT step and the path to the
+  review file. When the review has a mockup brief, offer to run the wireframer
+  once I have agreed the jobs. Do not run it before then.
+- After a wireframer run, show me the path to the wireframe and its JOBS NOT
+  SERVED and GAPS lines.
+```
+
 ## License
 
 [MIT](LICENSE)
