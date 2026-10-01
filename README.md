@@ -13,8 +13,27 @@ actually achieves the goal, and at what cost to the people who will use it.
 Changing the shape at that point costs a sentence, not a rewrite.
 
 ```
-idea → spec → [ product agents ] → build → code review → ship
+spec → jtbd-critic → you agree the jobs → wireframer → you agree the UI → build
 ```
+
+## How it works
+
+1. **Review the jobs.** Hand the spec to the `jtbd-critic`. It writes
+   `reviews/<feature>/jtbd.md`: what the feature is for, every job it creates
+   for people, which jobs it refuses and how to reshape them, and a mockup
+   brief for anything people will see.
+2. **Agree the jobs.** Read the review. Accept the reshapes, answer its
+   questions, or send it back. Nothing is drawn until the jobs are agreed, so
+   the screens come from the reshaped feature, not the first draft.
+3. **Review the UI.** Hand the agreed review to the `wireframer`. It writes
+   `reviews/<feature>/wireframe.html`: a low-fidelity, clickable wireframe with
+   every screen and state reachable, each field tagged with where its data
+   comes from, each screen tied to the jobs it serves, and a panel listing
+   gaps and unserved jobs.
+4. **Agree the UI, then build.** Both files stay in the repository as the
+   record of what was decided and why.
+
+Changes with nothing a person sees stop after step 2.
 
 ## What a review checks
 
@@ -26,18 +45,15 @@ idea → spec → [ product agents ] → build → code review → ship
 - **The shape.** Where the system could do the work itself (derive the value,
   default it, ask once instead of every time), the review says so before it is
   built the expensive way.
-- **What to build.** A plain-language list of the jobs the feature serves, and
-  a mockup brief naming every field on screen and where its data comes from,
-  so the design can be checked before anything is wired.
+- **The screens.** Whether every agreed job has a place on screen where it
+  gets done, and whether every field on screen has a real data source.
 
 ## Agents
 
-| Agent | Question it answers |
-| --- | --- |
-| [`jtbd-critic`](agents/jtbd-critic.md) | Who now has to do something they didn't before, how often, and did anyone agree to that? |
-
-More will follow, each covering one question that belongs between spec and
-build.
+| Step | Agent | Question it answers | Writes |
+| --- | --- | --- | --- |
+| 1 | [`jtbd-critic`](agents/jtbd-critic.md) | Who now has to do something they didn't before, how often, and did anyone agree to that? | `reviews/<feature>/jtbd.md` |
+| 2 | [`wireframer`](agents/wireframer.md) | Does every agreed job have a place on screen, and does every field have a real source? | `reviews/<feature>/wireframe.html` |
 
 ### jtbd-critic
 
@@ -54,7 +70,7 @@ It is not a scope-cutter. When a person genuinely has to decide something, the
 critic keeps the job; the point is that the workload becomes a decision rather
 than an accident.
 
-Each review returns:
+Each review contains:
 
 1. **A verdict:** ship as proposed, ship with reshapes, or reshape first.
 2. **A jobs table:** role, trigger, frequency, cost and verdict for each job.
@@ -62,25 +78,43 @@ Each review returns:
 4. **Questions only the requester can answer**, if any.
 5. **A jobs sheet** for the person who asked, in plain words.
 6. **A mockup brief:** screens, states, every field and its source, and sample
-   data to review a design against.
+   data. This is the wireframer's input.
 
 It also works after the fact. Point it at a merged pull request and it runs a
 retrospective audit, with the reshapes as follow-up work.
 
+### wireframer
+
+Draws the agreed mockup brief as one self-contained HTML file: greyscale on
+purpose, so the review stays on what the page asks of people rather than how
+it looks. It uses the brief's own sample data, makes filters and expandable
+rows actually work, and overlays review notes:
+
+- the source of every field, with fields the brief marks NEW highlighted and
+  anything it had to invent tagged **NOT IN BRIEF**;
+- the jobs each screen serves;
+- why a reshape removed something, so nobody asks for it back.
+
+A review panel lists every job with the screens that serve it, flags any job
+no screen serves, and collects the gaps and assumptions. It will not draw a
+feature whose jobs review was refused and not yet reshaped.
+
 ## Install
 
-Copy an agent into your project's `.claude/agents/` directory, or into
-`~/.claude/agents/` to use it everywhere:
+Copy the agents into your project's `.claude/agents/` directory, or into
+`~/.claude/agents/` to use them everywhere:
 
 ```bash
 mkdir -p .claude/agents
-curl -o .claude/agents/jtbd-critic.md \
-  https://raw.githubusercontent.com/jlindqui/product-agents/main/agents/jtbd-critic.md
+for a in jtbd-critic wireframer; do
+  curl -o .claude/agents/$a.md \
+    https://raw.githubusercontent.com/jlindqui/product-agents/main/agents/$a.md
+done
 ```
 
 ## Use
 
-Hand it the spec, in whatever form it exists:
+Hand the critic the spec, in whatever form it exists:
 
 ```
 Run the jtbd-critic on this: "When an invoice is disputed, ask the account
@@ -95,18 +129,27 @@ Run the jtbd-critic on the plan in docs/plans/bulk-import.md
 Run the jtbd-critic on PR #412
 ```
 
+Once you have agreed the jobs:
+
+```
+Run the wireframer on reviews/invoice-dispute-reasons/jtbd.md
+```
+
 ## Make it yours
 
-The agents work on any product, but they are sharper with context. The JTBD
-critic reads, if present:
+The agents work on any product, but they are sharper with context. Both read,
+if present:
 
 - a product context file (`PRODUCT.md`, `CLAUDE.md`, or similar) describing
   who the product serves and what it is for, and
 - wherever your code defines user roles.
 
-Replace the generic roles section with your product's real roles, and add your
-own past decisions as examples. A critic that knows "we chose to ask more here,
-and it was right" rules better than one that doesn't.
+The wireframer also reads your existing screens in the same area, so its
+layout and names match what your users already know.
+
+Replace the critic's generic roles section with your product's real roles, and
+add your own past decisions as examples. A critic that knows "we chose to ask
+more here, and it was right" rules better than one that doesn't.
 
 ## License
 
