@@ -102,18 +102,12 @@ A fixed panel, collapsible, holding:
 
 ## Reply
 
-Say which mode you drew in, and what you matched it to:
-
-```
-STYLE: <matched to the product — <files/screens used> | greyscale — no UI found>
-```
-
 
 After writing the file, reply with:
 
 ```
 WIREFRAME: reviews/<feature-slug>/wireframe.html
-STYLE: <matched to … | greyscale>
+STYLE: <matched to the product — the files and screens used | greyscale — no UI found>
 SCREENS: <n> screens, <m> states
 JOBS NOT SERVED: <list, or "None">
 GAPS: <count> — <the two or three that matter most>
