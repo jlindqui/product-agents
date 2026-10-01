@@ -26,7 +26,8 @@ spec → jtbd-critic → you agree the jobs → wireframer → you agree the UI 
    questions, or send it back. Nothing is drawn until the jobs are agreed, so
    the screens come from the reshaped feature, not the first draft.
 3. **Review the UI.** Hand the agreed review to the `wireframer`. It writes
-   `reviews/<feature>/wireframe.html`: a low-fidelity, clickable wireframe with
+   `reviews/<feature>/wireframe.html`: a clickable wireframe, in your
+   product's look when it can match it, with
    every screen and state reachable, each field tagged with where its data
    comes from, each screen tied to the jobs it serves, and a panel listing
    gaps and unserved jobs.
@@ -85,10 +86,13 @@ retrospective audit, with the reshapes as follow-up work.
 
 ### wireframer
 
-Draws the agreed mockup brief as one self-contained HTML file: greyscale on
-purpose, so the review stays on what the page asks of people rather than how
-it looks. It uses the brief's own sample data, makes filters and expandable
-rows actually work, and overlays review notes:
+Draws the agreed mockup brief as one self-contained HTML file. When it runs
+inside a project with a UI, it matches the product: its colours, type,
+components and page layout, copied from the project's own styles and existing
+screens, so the reviewer sees what users will see. With no UI to match, it
+draws in greyscale rather than inventing a brand. It uses the brief's own
+sample data, makes filters and expandable rows actually work, and overlays
+review notes (switchable off to see the screen clean):
 
 - the source of every field, with fields the brief marks NEW highlighted and
   anything it had to invent tagged **NOT IN BRIEF**;
@@ -144,8 +148,9 @@ if present:
   who the product serves and what it is for, and
 - wherever your code defines user roles.
 
-The wireframer also reads your existing screens in the same area, so its
-layout and names match what your users already know.
+The wireframer also reads your design tokens, theme and existing screens in
+the same area, so the wireframe looks like your product and uses the
+components your users already know.
 
 Replace the critic's generic roles section with your product's real roles, and
 add your own past decisions as examples. A critic that knows "we chose to ask
