@@ -106,7 +106,9 @@ feature whose jobs review was refused and not yet reshaped.
 ## Install
 
 Copy the agents into your project's `.claude/agents/` directory, or into
-`~/.claude/agents/` to use them everywhere:
+`~/.claude/agents/` to use them everywhere.
+
+macOS / Linux / Git Bash:
 
 ```bash
 mkdir -p .claude/agents
@@ -115,6 +117,20 @@ for a in jtbd-critic wireframer; do
     https://raw.githubusercontent.com/jlindqui/product-agents/main/agents/$a.md
 done
 ```
+
+Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force .claude/agents | Out-Null
+'jtbd-critic','wireframer' | ForEach-Object {
+  Invoke-WebRequest -OutFile ".claude/agents/$_.md" `
+    "https://raw.githubusercontent.com/jlindqui/product-agents/main/agents/$_.md"
+}
+```
+
+**Then wire it in** — see [Wire it into your project](#wire-it-into-your-project).
+Copying the files alone will not make the review happen; it only makes it
+possible to ask for by name.
 
 ## Use
 
@@ -156,20 +172,38 @@ Replace the critic's generic roles section with your product's real roles, and
 add your own past decisions as examples. A critic that knows "we chose to ask
 more here, and it was right" rules better than one that doesn't.
 
-### Make sure the next step reaches you
+### Wire it into your project
 
-A subagent reports to the main Claude session, not directly to you, and that
-session can summarise away the critic's `NEXT` line. To make the hand-off
-reliable, add this to your project's `CLAUDE.md`:
+⚠️ **Do this part.** Installing the files makes the agents *available*; it does
+not make them *happen*. Nothing tells Claude the critic exists, so until you
+add the block below you have to remember to type "run the jtbd-critic on…"
+every single time — and the one time it matters most is the time you are in a
+hurry and forget. The second half matters for a different reason: a subagent
+reports to the main Claude session, not to you, and that session can summarise
+away the critic's `NEXT` line.
+
+Add this to your project's `CLAUDE.md` (or `AGENTS.md`, or whatever file your
+assistant reads on every session):
 
 ```markdown
 ## Product review
+
+- **Before building anything a person will use** — a new screen, field, form,
+  button, queue or notification, or any change to what someone has to do —
+  run the `jtbd-critic` on my request FIRST, before writing code or a plan.
+  Treat whatever I said as the spec; do not ask me to write a longer one.
+  Skip it only when the change creates no new decision, reading or data entry
+  for anyone.
 - After a jtbd-critic review, always show me its NEXT step and the path to the
   review file. When the review has a mockup brief, offer to run the wireframer
   once I have agreed the jobs. Do not run it before then.
 - After a wireframer run, show me the path to the wireframe and its JOBS NOT
   SERVED and GAPS lines.
 ```
+
+The agent is called by the `name:` in its own front matter, which matches the
+filename — so if you rename `jtbd-critic.md`, change the name inside it and in
+this block too, or the routing silently stops working.
 
 ## License
 
