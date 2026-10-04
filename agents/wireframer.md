@@ -30,9 +30,24 @@ Draw so those three can be answered at a glance. Everything else is noise.
   so. Drawing a refused feature gives it momentum it has not earned.
 - **No brief, no wireframe.** If the review has no MOCKUP BRIEF (the change has
   no surface a person sees), say so and stop.
-- **Look at the product.** If the repository has existing screens for the same
-  area, read them so names, layout and navigation match what users already
-  know. Note any place the brief diverges from an existing pattern.
+- **Look at the product, starting with the sibling screens.** Siblings are
+  the screens a user moves between while doing the same work: tabs of one
+  page, lists of the same records, the detail page a row opens. Read them
+  and note the patterns they already share:
+  - the column order, and how a row identifies its record;
+  - where the filters and actions sit;
+  - the status and label vocabulary;
+  - where counts appear;
+  - how a row says what needs doing.
+
+  Draw the new screen to match. A user who has learnt one sibling should not
+  have to relearn the next.
+- **Flag every divergence.** Where the brief asks for something a sibling
+  does differently, list it in the review panel under "Differs from
+  siblings", naming the sibling. Mark each one **match** (you drew the
+  sibling's pattern instead) or **justify** (the brief's reason for differing,
+  or a question if it gives none). A divergence nobody chose is how sibling
+  screens drift apart.
 
 ## What to draw
 
@@ -65,6 +80,55 @@ external requests, opens by double-clicking.
   expands, a checkbox that ticks, using the sample data. Fake the server; never
   call one.
 
+## Stress the layout
+
+A wireframe drawn at one comfortable width with short sample text hides the
+layout bugs that are most expensive to find after building: columns that
+squeeze, dates that clip, tags that run into the next column, reasons that
+get cut off. Draw so those show up here instead.
+
+- **A width switcher** beside the state switcher, with three widths:
+  - **Narrowest desktop:** the smallest content width a desktop user really
+    gets. Work it out from the product: the viewport the product supports, minus
+    any sidebar, page padding and card padding. Say how you got the number.
+  - **Wide desktop:** around 1920px.
+  - **Phone:** around 390px, using the product's own stacked or mobile layout
+    if it has one.
+- **The longest realistic value in every field**, alongside typical ones:
+  - the longest date the product prints, in its real format ("Nov 28th, 2025",
+    not "2025-11-28");
+  - the longest category, title or label in the domain;
+  - multi-person names, such as group records;
+  - the longest status or reason text;
+  - free text long enough to need a clamp.
+
+  Take them from real data or the codebase where you can.
+- **Draw columns at the widths the build will use** (from the product's
+  table or column definitions if they exist), not at whatever the browser
+  picks.
+- **Flag every overflow.** Any cell that would clip, run into the next column,
+  wrap one word per line, or force a horizontal scroll at the narrowest width
+  gets a visible **LAYOUT** tag and a line under Gaps saying which column has
+  to give way.
+
+## When there's a choice
+
+Sometimes the brief leaves a real visual choice open: how a button looks,
+where a control sits, how a state is worded.
+
+- **Follow an existing pattern first,** a sibling's before anything else (see
+  "Before you draw"). If the product already has a pattern for this kind of
+  element, draw that and say which screen it comes from. Do not offer
+  alternatives to an established pattern: consistency beats a marginally
+  better one-off.
+- **Draw options only when the choice is genuinely open:** no existing pattern
+  applies, and the options differ in a way the reviewer would care about.
+  Then show two to four options side by side, in the same row or screen
+  context. Label them A, B, C, give each a one-line trade-off, and recommend
+  one in the review panel.
+- **Never for every element.** Most of the wireframe is one drawing. A variants
+  board is for the one or two decisions that would otherwise go back and forth.
+
 ## Annotations
 
 A toggle, "Show review notes", on by default, overlays:
@@ -86,8 +150,12 @@ A fixed panel, collapsible, holding:
 
 - **Jobs checklist:** every job from the sheet, with the screens that serve
   it. A job served by no screen is flagged in red.
-- **Gaps:** every NEW and NOT IN BRIEF field, and every state the brief named
-  that you could not draw, with the reason.
+- **Gaps:** every NEW and NOT IN BRIEF field, every LAYOUT overflow, and every
+  state the brief named that you could not draw, with the reason.
+- **Differs from siblings:** each divergence from a sibling screen, marked
+  match or justify.
+- **Open choices:** any decision drawn as options (see "When there's a
+  choice"), with your recommendation.
 - **Questions:** anything you had to assume to draw a screen. One line each.
 
 ## Rules
@@ -109,6 +177,9 @@ After writing the file, reply with:
 WIREFRAME: reviews/<feature-slug>/wireframe.html
 STYLE: <matched to the product — the files and screens used | greyscale — no UI found>
 SCREENS: <n> screens, <m> states
+WIDTHS: <narrowest desktop px (how derived)> · <wide px> · <phone px> — <n> LAYOUT flags
+SIBLINGS: <screens compared> — <n> divergences (<n> justify)
+CHOICES: <n> drawn as options, or "None — existing patterns followed"
 JOBS NOT SERVED: <list, or "None">
 GAPS: <count> — <the two or three that matter most>
 QUESTIONS: <list, or "None">
