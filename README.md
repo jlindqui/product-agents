@@ -8,16 +8,25 @@ of people is already decided. Code review checks that the code is correct. It
 does not check that the feature will achieve what it was for.
 
 Product agents review the spec instead. They run while the feature is still a
-sentence, a ticket or a plan, and ask whether what is about to be built
-actually achieves the goal, and at what cost to the people who will use it.
-Changing the shape at that point costs a sentence, not a rewrite.
+sentence, a ticket or a plan, and ask whether what is about to be built is
+worth paying for, actually achieves the goal, and at what cost to the people
+who will use it. Changing the shape at that point costs a sentence, not a
+rewrite.
 
 ```
-spec → jtbd-critic → you agree the jobs → wireframer → you agree the UI → build
+spec → wtp-critic → jtbd-critic → you agree the jobs → wireframer → you agree the UI → build
+       (optional:
+        will anyone pay?)
 ```
 
 ## How it works
 
+0. **Optional: check someone will pay.** Hand the spec to the `wtp-critic`. It
+   writes `reviews/<feature>/wtp.md`: who would pay (the buyer, not just the
+   user), for what outcome, compared to what they do today, how strong the
+   evidence is, and the cheapest test that would make it stronger. Use it for
+   anything sold on its value: a new product, a paid tier, an add-on, or a
+   feature you are building because "customers want it".
 1. **Review the jobs.** Hand the spec to the `jtbd-critic`. It writes
    `reviews/<feature>/jtbd.md`: what the feature is for, every job it creates
    for people, which jobs it refuses and how to reshape them, and a mockup
@@ -38,6 +47,9 @@ Changes with nothing a person sees stop after step 2.
 
 ## What a review checks
 
+- **The money.** Who would pay for the outcome, how much, compared to what,
+  and on what evidence. "Customers want it" is a hypothesis until someone has
+  spent or committed money on the problem.
 - **The goal.** What the feature is for, in the requester's own words. Every
   finding is measured against it.
 - **The work it creates.** Every new task the feature hands to a person: who,
@@ -53,8 +65,41 @@ Changes with nothing a person sees stop after step 2.
 
 | Step | Agent | Question it answers | Writes |
 | --- | --- | --- | --- |
+| 0 (optional) | [`wtp-critic`](agents/wtp-critic.md) | Who would pay for this, how much, compared to what, and how do we know? | `reviews/<feature>/wtp.md` |
 | 1 | [`jtbd-critic`](agents/jtbd-critic.md) | Who now has to do something they didn't before, how often, and did anyone agree to that? | `reviews/<feature>/jtbd.md` |
 | 2 | [`wireframer`](agents/wireframer.md) | Does every agreed job have a place on screen, and does every field have a real source? | `reviews/<feature>/wireframe.html` |
+
+### wtp-critic
+
+Wanting is not paying. A feature can be loved and still earn nothing: it is
+table stakes, the user who loves it does not hold the budget, or the customer
+already solves the problem for free with a spreadsheet. The WTP critic answers
+one question before anything is built:
+
+> Who would pay, how much more (or how much less likely to leave), for what
+> outcome, compared to what they do today, and what evidence says so?
+
+It ranks evidence on a ladder, from money already spent on the problem down to
+stated interest and belief, and never rules "pays" on what people say they
+would pay alone: hypothetical answers cost the speaker nothing. Each review
+contains:
+
+1. **A verdict:** pays, pays if a condition holds, table stakes, won't pay, or
+   unknown — test first.
+2. **The commercial role:** wins new deals, expands accounts, keeps customers,
+   table stakes, or none.
+3. **Who pays:** the buyer, the user and any blocker, per customer segment.
+4. **Evidence**, strongest first, with where each piece came from.
+5. **Value:** the outcome sized with stated assumptions, the reference price
+   (what they pay today or what competitors charge) and, for anything with a
+   per-use cost such as AI calls, the cost to serve.
+6. **Packaging:** what the price should scale with, which plan it belongs in,
+   and whether the buyer will ever see it.
+7. **The cheapest test** that would move the evidence up one rung, with a
+   decision rule.
+
+When a jobs review of the same feature exists, it reads it: the jobs a feature
+retires are the raw material of its value.
 
 ### jtbd-critic
 
@@ -112,7 +157,7 @@ macOS / Linux / Git Bash:
 
 ```bash
 mkdir -p .claude/agents
-for a in jtbd-critic wireframer; do
+for a in wtp-critic jtbd-critic wireframer; do
   curl -o .claude/agents/$a.md \
     https://raw.githubusercontent.com/jlindqui/product-agents/main/agents/$a.md
 done
@@ -122,7 +167,7 @@ Windows PowerShell:
 
 ```powershell
 New-Item -ItemType Directory -Force .claude/agents | Out-Null
-'jtbd-critic','wireframer' | ForEach-Object {
+'wtp-critic','jtbd-critic','wireframer' | ForEach-Object {
   Invoke-WebRequest -OutFile ".claude/agents/$_.md" `
     "https://raw.githubusercontent.com/jlindqui/product-agents/main/agents/$_.md"
 }
@@ -134,7 +179,13 @@ possible to ask for by name.
 
 ## Use
 
-Hand the critic the spec, in whatever form it exists:
+To check the money first:
+
+```
+Run the wtp-critic on this: "Add an AI summary of each case to the Pro plan."
+```
+
+Hand the jobs critic the spec, in whatever form it exists:
 
 ```
 Run the jtbd-critic on this: "When an invoice is disputed, ask the account
@@ -157,12 +208,18 @@ Run the wireframer on reviews/invoice-dispute-reasons/jtbd.md
 
 ## Make it yours
 
-The agents work on any product, but they are sharper with context. Both read,
-if present:
+The agents work on any product, but they are sharper with context. All of them
+read, if present:
 
 - a product context file (`PRODUCT.md`, `CLAUDE.md`, or similar) describing
   who the product serves and what it is for, and
 - wherever your code defines user roles.
+
+The WTP critic also reads your plans and pricing if the code defines them (plan
+names, tier flags, a billing module), and is far sharper when the context file
+says who buys your product and how: on a card, through procurement, per seat.
+Give it your real evidence too — lost-deal reasons, churn reasons, what
+customers pay for today — and it will rule on that instead of on assumptions.
 
 The wireframer also reads your design tokens, theme and existing screens in
 the same area, so the wireframe looks like your product and uses the
@@ -194,6 +251,10 @@ assistant reads on every session):
   Treat whatever I said as the spec; do not ask me to write a longer one.
   Skip it only when the change creates no new decision, reading or data entry
   for anyone.
+- When I propose something on the grounds that customers will pay for it — a
+  new product, paid tier, add-on or premium feature — offer to run the
+  `wtp-critic` on it first, and show me its verdict, evidence rung and
+  cheapest test.
 - After a jtbd-critic review, always show me its NEXT step and the path to the
   review file. When the review has a mockup brief, offer to run the wireframer
   once I have agreed the jobs. Do not run it before then.
