@@ -118,13 +118,24 @@ than an accident.
 
 Each review contains:
 
-1. **A verdict:** ship as proposed, ship with reshapes, or reshape first.
-2. **A jobs table:** role, trigger, frequency, cost and verdict for each job.
-3. **Reshapes:** the change that removes each refused job.
-4. **Questions only the requester can answer**, if any.
-5. **A jobs sheet** for the person who asked, in plain words.
-6. **A mockup brief:** screens, states, every field and its source, and sample
+1. **What was asked and what changes**, in two plain sentences, so the review
+   reads on its own.
+2. **A verdict:** ship as proposed, ship with reshapes, or reshape first.
+3. **The jobs:** role, trigger, frequency, cost and verdict for each — as a
+   list, so it reads in a terminal or on a phone.
+4. **Reshapes:** the change that removes each refused job.
+5. **First-release cuts**, if any: parts of the proposal that could wait, or be
+   done by hand for the first customers. Offered, not imposed.
+6. **Questions only the requester can answer**, each with the assumption the
+   review used and whether it blocks building.
+7. **A jobs sheet** for the person who asked, in plain words.
+8. **A mockup brief:** screens, states, every field and its source, and sample
    data. This is the wireframer's input.
+
+It questions the proposal's own steps too: a confirm or approve step written
+into the spec gets the same ruling as a new one. And it checks what the change
+leans on — a scheduled task or default that would quietly undo the new job is
+a finding even when the proposal never mentions it.
 
 It also works after the fact. Point it at a merged pull request and it runs a
 retrospective audit, with the reshapes as follow-up work.
@@ -255,9 +266,18 @@ assistant reads on every session):
   new product, paid tier, add-on or premium feature — offer to run the
   `wtp-critic` on it first, and show me its verdict, evidence rung and
   cheapest test.
-- After a jtbd-critic review, always show me its NEXT step and the path to the
-  review file. When the review has a mockup brief, offer to run the wireframer
-  once I have agreed the jobs. Do not run it before then.
+- After a jtbd-critic review, show me, in this order: what changes (its
+  ASKED/CHANGES lines), the jobs, any first-release cuts, its NEXT step and
+  the path to the review file.
+- Ask me the review's questions with your question tool (multiple choice, its
+  assumption as the recommended option) before building. Do not build on an
+  unanswered question marked "Blocks build: yes"; never bury questions at the
+  end of a long message.
+- Wait for me to agree the jobs before writing code, unless I said to go ahead
+  in the same request. When the review has a mockup brief and the change adds
+  or reshapes a screen, offer to run the wireframer once I have agreed the
+  jobs; for a small change to an existing screen, say you are skipping it and
+  why. Do not run it before the jobs are agreed.
 - After a wireframer run, show me the path to the wireframe and its JOBS NOT
   SERVED and GAPS lines.
 ```
